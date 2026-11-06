@@ -1,0 +1,30 @@
+feature,area,priority,original,clone,notes
+Add M3U/M3U8 playlist by URL,playlists,must,yes,yes,
+Parse group-title and tvg-logo,playlists,must,yes,yes,
+Browse channels by group,browse,must,yes,yes,
+Search channels,browse,must,yes,yes,
+Play HLS and HTTP streams,player,must,yes,yes,AVPlayer
+AirPlay to car or TV,cast,must,yes,yes,AVRoutePickerView
+Car mode with large controls,car mode,must,yes,yes,
+One-tap next/previous channel,player,must,yes,yes,
+Favourites,library,must,yes,yes,
+Resume playback position,player,must,yes,yes,
+Refresh rename delete playlist,playlists,must,yes,yes,
+Local data only and no account,privacy,must,yes,yes,
+Mini player while browsing,player,should,yes,yes,
+Recently played on Home,home,should,yes,yes,
+Search history,home,should,yes,yes,
+Xtream Codes login,sources,should,yes,yes,not tested against a live server
+Jellyfin server browse,sources,should,yes,yes,not tested against a live server
+Subtitle and audio track selection,player,should,yes,yes,AVMediaSelection
+Picture in picture,player,should,yes,yes,
+Import local video files,library,should,yes,yes,
+Add playlist by QR code,playlists,could,yes,yes,Camera via VisionKit on device; QR image from Photos fallback; Xtream get.php links fill the login form
+Voice search,home,could,yes,yes,"Speech framework; simulator speech engine fails to start, so verify on a real iPhone"
+Emby and Plex,sources,could,yes,partial,Emby works via Jellyfin-compatible API; Plex not built; not tested against a live server
+Manual sort of favourites,library,could,yes,yes,
+Audio visualizer styles,player,could,yes,yes,"Bars (free), Wave and Rings (Pro); animated in step with play/pause, not from the audio samples (HLS does not expose them)"
+Paywall weekly yearly lifetime,monetization,could,yes,yes,StoreKit 2 with local Backseat.storekit; create matching products in App Store Connect before release
+Full-screen mirroring of any app,cast,could,yes,skip,needs ReplayKit broadcast extension; phase 2
+MKV HEVC DTS software decode,player,could,yes,skip,needs VLCKit/FFmpeg dependency; phase 2
+Rotary knob input,car mode,could,yes,skip,hardware dependent

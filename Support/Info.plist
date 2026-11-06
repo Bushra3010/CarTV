@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Backseat uses the camera to scan playlist QR codes.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Backseat listens only while voice search is open, to find channels by name.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Voice search turns what you say into a channel search.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+	</array>
+</dict>
+</plist>

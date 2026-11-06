@@ -2,7 +2,7 @@
   "name": "Backseat — IPTV player",
   "short_name": "Backseat",
   "description": "Play your own M3U playlists, cast to a TV, and switch channels with big car-mode controls.",
-  "start_url": "/",
+  "start_url": "/app/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

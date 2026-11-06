@@ -1,0 +1,17 @@
+# Netlify serves the static site in web/: the landing page at /, the web player at /app/.
+# The iPhone app (Backseat/) is built with Xcode and is not part of the site.
+[build]
+  publish = "web"
+  command = "echo 'Static site: no build step'"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"

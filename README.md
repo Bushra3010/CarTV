@@ -2,7 +2,20 @@
 
 A clean-room rebuild of the core features of an M3U/IPTV player with car casting. SwiftUI, iOS 18+, no third-party dependencies. The app ships no content: users add their own playlists and servers.
 
-## Run
+## Website (Netlify)
+
+`web/` is a static site with no build step. Netlify publishes it using `netlify.toml`:
+
+- `/` is the landing page, with `/privacy/` and `/support/` (App Store Connect needs both URLs).
+- `/app/` is the web player. Add an M3U link or file, browse channels, play HLS with hls.js, favourites, resume, and car mode. Many IPTV servers block browsers (CORS), and https pages can't play `http://` streams, so some playlists only work in the iPhone app.
+
+To preview locally:
+
+```bash
+python3 -m http.server 8787 --directory web
+```
+
+## Run the iPhone app
 
 Open `Backseat.xcodeproj` in Xcode 26, pick an iPhone simulator, and press Run. To use it on a device, set your Team under Signing.
 

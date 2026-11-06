@@ -74,13 +74,13 @@ enum SamplePlaylist {
     https://demo.unified-streaming.com/k8s/features/stable/video/tears-of-steel/tears-of-steel.ism/.m3u8
     #EXTINF:-1 group-title="Test streams (HLS)",Apple Bipbop (audio only)
     https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_4x3/gear0/prog_index.m3u8
-    #EXTINF:-1 group-title="Sample movies (MP4)",Big Buck Bunny
-    https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4
-    #EXTINF:-1 group-title="Sample movies (MP4)",Elephants Dream
-    https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4
-    #EXTINF:-1 group-title="Sample movies (MP4)",Sintel
-    https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4
-    #EXTINF:-1 group-title="Sample movies (MP4)",Tears of Steel
-    https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4
+    #EXTINF:-1 group-title="Sample movies (MP4)",Sintel (trailer)
+    https://download.blender.org/durian/trailer/sintel_trailer-480p.mp4
+    #EXTINF:-1 group-title="Sample movies (MP4)",Big Buck Bunny (10s clip)
+    https://test-videos.co.uk/vids/bigbuckbunny/mp4/h264/720/Big_Buck_Bunny_720_10s_1MB.mp4
+    #EXTINF:-1 group-title="Sample movies (MP4)",Jellyfish (10s clip)
+    https://test-videos.co.uk/vids/jellyfish/mp4/h264/720/Jellyfish_720_10s_1MB.mp4
+    #EXTINF:-1 group-title="Sample movies (MP4)",Flower (MDN, CC0)
+    https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4
     """
 }

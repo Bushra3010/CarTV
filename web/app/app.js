@@ -209,7 +209,7 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
 
   // ---------- Rendering ----------
   function logoHTML(ch, cls = 'logo') {
-    const initials = esc(ch.name.split(/\s+/).slice(0, 2).map((w) => w[0] || '').join('').toUpperCase());
+    const initials = esc(ch.name.replace(/[^\p{L}\p{N}\s]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '▶');
     if (!ch.logo) return `<span class="${cls}">${initials}</span>`;
     return `<span class="${cls}"><img src="${esc(ch.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.textContent='${initials}'"></span>`;
   }
@@ -258,7 +258,12 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
       html += `<button class="nav-item${v.type === 'source' && v.id === s.id && !state.query ? ' active' : ''}" data-action="nav" data-view="source" data-id="${s.id}">☰&nbsp; ${esc(s.name)}${s.error ? '<span class="err" title="' + esc(s.error) + '">!</span>' : `<span class="count">${(s.count || 0).toLocaleString()}</span>`}</button>`;
     }
     html += `<button class="nav-item" data-action="open-add" style="color:var(--accent)">＋&nbsp; Add playlist</button>`;
+    html += `<div class="nav-title">More</div>`;
+    html += item('🚘&nbsp; Cast to Car', 'cast', '', v.type === 'cast' && !state.query);
+    html += item('⚙︎&nbsp; Settings', 'settings', '', v.type === 'settings' && !state.query);
     $('#nav').innerHTML = html;
+    const tab = v.type === 'source' ? 'playlists' : v.type === 'favorites' ? 'home' : v.type;
+    document.querySelectorAll('#tabbar button').forEach((b) => b.classList.toggle('active', b.dataset.view === tab && !state.query));
   }
 
   function renderView() {
@@ -275,6 +280,54 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
     }
 
     const v = state.view;
+    if (v.type === 'playlists') {
+      el.innerHTML = `<div class="view-head"><div class="grow"><h1>Playlists</h1><p class="sub" style="margin:0">Your playlists are stored only in this browser.</p></div>
+        <div class="tools"><button class="btn small primary" data-action="open-add">+ Add</button></div></div>` +
+        (state.sources.length
+          ? `<ul class="list">${state.sources.map((s) => `<li class="ch"><button class="ch-main" data-action="nav" data-view="source" data-id="${s.id}">
+              <span class="logo">☰</span><span class="ch-text"><div class="ch-name">${esc(s.name)}</div>
+              <div class="ch-group">${s.kind === 'file' ? 'Uploaded file' : s.kind === 'sample' ? 'Sample' : 'M3U link'} · ${(s.count || 0).toLocaleString()} entries</div>
+              ${s.error ? `<div class="ch-group" style="color:var(--danger)">${esc(s.error)}</div>` : ''}</span></button><span class="star">›</span></li>`).join('')}</ul>`
+          : `<div class="empty"><div class="big-icon">☰</div><h2>No playlists yet</h2><p>Backseat comes with no channels. Add a playlist you have the right to use.</p>
+             <div class="btns"><button class="btn primary" data-action="open-add">Add a playlist</button><button class="btn" data-action="add-sample">Try sample streams</button></div></div>`);
+      return;
+    }
+    if (v.type === 'cast') {
+      const airplay = 'webkitShowPlaybackTargetPicker' in HTMLVideoElement.prototype;
+      const remote = 'remote' in HTMLMediaElement.prototype;
+      const how = airplay ? 'AirPlay (Safari)' : remote ? 'Cast (Chrome / Edge)' : null;
+      el.innerHTML = `<h1>Cast to Car</h1><p class="sub">Send what you're watching to a car display, wireless adapter or TV.</p>
+        <div class="card-box">
+          <div class="cast-status">${how ? `✅ This browser can cast with <strong>${how}</strong>.` : '⚠️ This browser has no built-in casting. Use Safari (AirPlay) or Chrome (Cast), or the iPhone app.'}</div>
+          ${state.current ? `<div class="cast-now"><div><div class="ch-group">Now playing</div><div class="ch-name">${esc(state.current.name)}</div></div>
+            <div class="btns">${how ? '<button class="btn primary" data-action="cast">Cast now</button>' : ''}<button class="btn" data-action="car">🚗 Car mode</button></div></div>`
+            : '<p class="sub" style="margin:12px 0 0">Play a channel first, then come back here or tap 📺 in the player.</p>'}
+        </div>
+        <div class="card-box"><h2>Cast what you're watching</h2><ol class="steps-list">
+          <li>Connect to the same Wi-Fi as the car's wireless adapter or the TV.</li>
+          <li>Play a channel, then tap 📺 in the player (or <em>Cast now</em> above) and choose the screen.</li>
+          <li>On Chrome you can also use the browser menu › Cast… › Cast tab.</li></ol></div>
+        <div class="card-box"><h2>Mirror your whole screen</h2><ol class="steps-list">
+          <li>iPhone: open Control Center › Screen Mirroring and pick the display.</li>
+          <li>Android: open Quick Settings › Cast or Smart View.</li></ol></div>
+        <p class="notice">For passengers only. Never watch video while driving.</p>`;
+      return;
+    }
+    if (v.type === 'settings') {
+      el.innerHTML = `<h1>Settings</h1><p class="sub">Everything is stored only in this browser. There's no account.</p>
+        <div class="card-box"><h2>Playback</h2>
+          <label class="switch"><input type="checkbox" data-action="setting-car" ${LS.get('openInCar', false) ? 'checked' : ''}><span>Open videos in car mode</span></label></div>
+        <div class="card-box"><h2>Data</h2><div class="btns" style="justify-content:flex-start">
+          <button class="btn" data-action="clear-recents">Clear recently played</button>
+          <button class="btn" data-action="clear-progress">Clear watch progress</button>
+          <button class="btn danger" data-action="clear-all">Delete all playlists and data</button></div></div>
+        <div class="card-box"><h2>Help</h2>
+          <details><summary>Why won't a playlist load?</summary><p class="sub">Many IPTV servers don't let browsers read playlists (CORS). Download the .m3u file and use <em>Upload file</em>, or use the iPhone app.</p></details>
+          <details><summary>Why won't a channel play?</summary><p class="sub">Secure websites can't play http:// streams, and some formats can't be decoded by browsers. The iPhone app plays these.</p></details></div>
+        <div class="card-box"><h2>About</h2><p class="sub">Backseat is a media player. It provides no channels or content. Only add playlists you have the right to use.</p>
+          <div class="btns" style="justify-content:flex-start"><a class="btn" href="/about/">About Backseat</a><a class="btn" href="/privacy/">Privacy</a><a class="btn" href="/support/">Support</a></div></div>`;
+      return;
+    }
     if (v.type === 'favorites') {
       el.innerHTML = `<h1>Favourites</h1><p class="sub">Tap ☆ on any channel to add it here.</p>` +
         (state.favorites.length ? listHTML(state.favorites) : `<div class="empty"><div class="big-icon">☆</div><h2>No favourites yet</h2></div>`);
@@ -311,11 +364,11 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
       return;
     }
     const cont = state.recents.filter((c) => state.positions[c.key]);
-    el.innerHTML = `<h1>Home</h1><p class="sub">Pick up where you left off, or open a playlist on the left.</p>` +
+    el.innerHTML = `<h1>Home</h1><p class="sub">Pick up where you left off, or open one of your playlists.</p>` +
       railHTML('Continue watching', cont) +
       railHTML('Recently played', state.recents) +
       railHTML('Favourites', state.favorites, `<a href="#" data-action="nav" data-view="favorites">See all</a>`) +
-      (state.recents.length ? '' : `<div class="empty" style="padding:40px 0"><p>Open a playlist on the left and pick a channel to start watching.</p></div>`);
+      (state.recents.length ? '' : `<div class="empty" style="padding:40px 0"><p>Open one of your playlists and pick a channel to start watching.</p></div>`);
   }
 
   function render() {
@@ -361,28 +414,53 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
     } else {
       const pos = state.positions[ch.key];
       resumeTarget = pos ? pos.t : null;
-      const direct = /\.(mp4|m4v|mov|webm|mp3|m4a|aac|ogg|wav)(\?|$)/i.test(url);
-      const nativeHLS = video.canPlayType('application/vnd.apple.mpegurl');
-      if (!direct && !nativeHLS && window.Hls && window.Hls.isSupported()) {
-        hls = new window.Hls({ enableWorker: true });
-        hls.on(window.Hls.Events.ERROR, (_e, data) => {
-          if (!data.fatal) return;
-          if (data.type === 'networkError') showStatus("The stream couldn't be reached. It may be offline, or the server blocks browsers (CORS). Try the iPhone app.");
-          else showStatus('This stream uses a format the browser cannot play.');
-        });
-        hls.loadSource(url);
-        hls.attachMedia(video);
-      } else {
-        video.src = url;
-      }
-      video.play().catch(() => { /* autoplay may need a tap */ });
+      load(url);
     }
 
     state.recents = [ch, ...state.recents.filter((c) => c.key !== ch.key)].slice(0, 30);
     saveRecents();
     updateMediaSession();
     render();
-    if (!state.carMode) window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (LS.get('openInCar', false) && !state.carMode) enterCar();
+    else if (!state.carMode) window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  const DIRECT_FILE = /\.(mp4|m4v|mov|webm|mp3|m4a|aac|ogg|wav)(\?|$)/i;
+  const canNativeHLS = () => !!video.canPlayType('application/vnd.apple.mpegurl');
+  let tried = new Set();
+
+  // Picks a playback engine and falls back to the other one before giving up:
+  // Safari uses its own HLS player (best there, keeps AirPlay); other browsers start with
+  // hls.js and fall back to their built-in HLS support, which copes with some older streams.
+  function load(url) {
+    tried = new Set();
+    const hlsOK = window.Hls && window.Hls.isSupported();
+    if (DIRECT_FILE.test(url) || !hlsOK) return loadNative(url);
+    if (/Apple/.test(navigator.vendor) && canNativeHLS()) return loadNative(url);
+    return loadHls(url);
+  }
+
+  function loadNative(url) {
+    tried.add('native');
+    if (hls) { hls.destroy(); hls = null; }
+    video.src = url;
+    video.play().catch(() => { /* autoplay may need a tap */ });
+  }
+
+  function loadHls(url) {
+    tried.add('hls');
+    video.removeAttribute('src');
+    hls = new window.Hls({ enableWorker: true });
+    hls.on(window.Hls.Events.ERROR, (_e, data) => {
+      if (!data.fatal) return;
+      if (!tried.has('native') && canNativeHLS()) return loadNative(url);
+      if (hls) { hls.destroy(); hls = null; }
+      if (data.type === 'networkError') showStatus("The stream couldn't be reached. It may be offline, or the server blocks browsers (CORS). Try the iPhone app.");
+      else showStatus('This stream uses a format the browser cannot play. Try the iPhone app.');
+    });
+    hls.loadSource(url);
+    hls.attachMedia(video);
+    video.play().catch(() => {});
   }
 
   function step(delta) {
@@ -463,16 +541,9 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
   video.addEventListener('playing', hideStatus);
   video.addEventListener('ended', () => { if (state.current) { delete state.positions[state.current.key]; savePositions(); } step(1); });
   video.addEventListener('error', () => {
-    if (hls || !state.current) return;
-    if (!/\.(mp4|m4v|mov|webm|mp3|m4a|aac|ogg|wav)(\?|$)/i.test(state.current.url) && window.Hls && window.Hls.isSupported()) {
-      // Unknown extension that isn't a plain file: retry as HLS.
-      hls = new window.Hls();
-      hls.on(window.Hls.Events.ERROR, (_e, d) => { if (d.fatal) showStatus('This stream could not be played in the browser. Try the iPhone app.'); });
-      hls.loadSource(state.current.url);
-      hls.attachMedia(video);
-      video.play().catch(() => {});
-      return;
-    }
+    if (hls || !state.current || !video.getAttribute('src')) return;
+    const url = state.current.url;
+    if (!DIRECT_FILE.test(url) && !tried.has('hls') && window.Hls && window.Hls.isSupported()) return loadHls(url);
     showStatus('This stream could not be played. It may be offline, or use a format the browser cannot decode.');
   });
 
@@ -663,6 +734,20 @@ https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4`;
       case 'cast': cast(); break;
       case 'car': enterCar(); break;
       case 'car-exit': exitCar(); break;
+      case 'setting-car': LS.set('openInCar', el.checked); toast(el.checked ? 'Videos will open in car mode' : 'Car mode is off by default'); break;
+      case 'clear-recents': state.recents = []; saveRecents(); toast('Recently played cleared'); render(); break;
+      case 'clear-progress': state.positions = {}; savePositions(); toast('Watch progress cleared'); render(); break;
+      case 'clear-all':
+        if (confirm('Delete every playlist, favourite and watch history from this browser?')) {
+          stop();
+          for (const s of state.sources.slice()) await removeSource(s.id);
+          state.favorites = []; state.recents = []; state.positions = {};
+          saveFavs(); saveRecents(); savePositions();
+          state.view = { type: 'home' };
+          toast('All data deleted');
+          render();
+        }
+        break;
       case 'back30': if (!isLive()) video.currentTime = Math.max(0, video.currentTime - 30); break;
       case 'fwd30': if (!isLive()) video.currentTime = Math.min(video.duration - 1, video.currentTime + 30); break;
     }

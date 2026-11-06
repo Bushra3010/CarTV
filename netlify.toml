@@ -1,4 +1,4 @@
-# Netlify serves the static site in web/: the landing page at /, the web player at /app/.
+# Netlify serves the static site in web/: the web player at /, the landing page at /about/.
 # The iPhone app (Backseat/) is built with Xcode and is not part of the site.
 [build]
   publish = "web"
@@ -15,3 +15,14 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
+
+# The player used to live at /app/.
+[[redirects]]
+  from = "/app"
+  to = "/"
+  status = 301
+
+[[redirects]]
+  from = "/app/"
+  to = "/"
+  status = 301

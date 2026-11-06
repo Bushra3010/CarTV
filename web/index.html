@@ -2,158 +2,122 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Backseat — IPTV player and car casting for iPhone</title>
-  <meta name="description" content="Play your own M3U playlists, Xtream accounts and Jellyfin libraries, then send them to the car screen with AirPlay. Big passenger controls, no account, everything stays on your iPhone.">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Backseat — IPTV player</title>
+  <meta name="description" content="Play your own M3U playlists in the browser, cast to a TV, and switch channels with big car-mode controls.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Backseat">
   <meta name="theme-color" content="#07080f">
-  <meta property="og:title" content="Backseat — your playlists on the car screen">
-  <meta property="og:description" content="An IPTV player for passengers: M3U, Xtream, Jellyfin, AirPlay and a big-button car mode.">
-  <meta property="og:image" content="/assets/shots/carmode.jpg">
   <link rel="icon" href="/assets/icon.png">
-  <link rel="apple-touch-icon" href="/assets/icon.png">
-  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="apple-touch-icon" href="/assets/icon-192.png">
+  <link rel="stylesheet" href="/app/app.css">
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js" defer></script>
+  <script src="/app/app.js" defer></script>
 </head>
 <body>
-  <header class="nav">
-    <div class="wrap">
-      <a class="brand" href="/"><img src="/assets/icon.png" alt="">Backseat</a>
-      <nav class="nav-links" aria-label="Sections">
-        <a href="#features">Features</a>
-        <a href="#casting">Casting</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#faq">FAQ</a>
-      </nav>
-      <a class="btn btn-primary btn-sm" href="/app/">Open web player</a>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/assets/icon.png" alt="">Backseat</a>
+    <label class="search">
+      <span aria-hidden="true">⌕</span>
+      <input id="search" type="search" placeholder="Search all channels" autocomplete="off" aria-label="Search all channels">
+    </label>
+    <button class="btn primary" data-action="open-add">+ Add playlist</button>
   </header>
 
-  <main>
-    <section class="hero">
-      <div class="wrap">
+  <div class="layout">
+    <aside class="sidebar" aria-label="Library">
+      <nav id="nav"></nav>
+    </aside>
+
+    <main class="main">
+      <section id="player" class="player" hidden aria-label="Player">
+        <div class="stage" id="stage">
+          <video id="video" playsinline controls preload="auto"></video>
+          <canvas id="viz" hidden></canvas>
+          <div id="status" class="status" hidden></div>
+        </div>
+        <div class="player-bar">
+          <div class="now">
+            <div class="now-title" id="now-title"></div>
+            <div class="now-sub"><span id="live" class="live" hidden>LIVE</span><span id="now-group"></span></div>
+          </div>
+          <div class="controls">
+            <button class="icon-btn" data-action="prev" title="Previous (P)" aria-label="Previous channel">⏮</button>
+            <button class="icon-btn big" data-action="toggle" id="toggle" title="Play/pause (Space)" aria-label="Play or pause">⏸</button>
+            <button class="icon-btn" data-action="next" title="Next (N)" aria-label="Next channel">⏭</button>
+            <button class="icon-btn" data-action="fav-current" id="fav-current" title="Favourite" aria-label="Favourite">☆</button>
+            <button class="icon-btn" data-action="cast" id="cast" title="Cast or AirPlay" aria-label="Cast or AirPlay" hidden>📺</button>
+            <button class="icon-btn" data-action="car" title="Car mode (C)" aria-label="Car mode">🚗</button>
+            <button class="icon-btn" data-action="stop" title="Close player" aria-label="Close player">✕</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="view" class="view" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <nav class="tabbar" id="tabbar" aria-label="Tabs">
+    <button data-action="nav" data-view="home"><span>📺</span>Home</button>
+    <button data-action="nav" data-view="playlists"><span>☰</span>Playlists</button>
+    <button data-action="nav" data-view="cast"><span>🚘</span>Cast to Car</button>
+    <button data-action="nav" data-view="settings"><span>⚙︎</span>Settings</button>
+  </nav>
+
+  <div id="car" class="car" hidden>
+    <div class="car-stage" id="car-stage"></div>
+    <div class="car-panel">
+      <div class="car-head">
         <div>
-          <span class="eyebrow">IPTV player for passengers</span>
-          <h1>Your playlists, on the car screen.</h1>
-          <p class="lead">Backseat plays the M3U playlists, Xtream accounts and Jellyfin libraries you already have, and sends them to the car display or a TV with AirPlay. Huge passenger controls, one-tap channel switching, and no account.</p>
-          <div class="cta">
-            <a class="btn btn-primary" href="/app/">Try it in your browser</a>
-            <a class="btn btn-ghost" href="#features">iPhone app — coming soon</a>
-          </div>
-          <p class="fine">Backseat provides no channels or content. Add only playlists and servers you have the right to use.</p>
+          <div class="car-title" id="car-title"></div>
+          <div class="car-group" id="car-group"></div>
         </div>
-        <div class="hero-visual" aria-hidden="true">
-          <div class="phone a"><img src="/assets/shots/player.jpg" alt=""></div>
-          <div class="phone b"><img src="/assets/shots/channels.jpg" alt=""></div>
-        </div>
+        <button class="round" data-action="car-exit" aria-label="Exit car mode">✕</button>
       </div>
-    </section>
-
-    <section id="features">
-      <div class="wrap">
-        <h2>Everything a passenger needs</h2>
-        <p class="section-lead">Built for long drives: open your playlist, pick a channel, and hand the remote to the back seat.</p>
-        <div class="grid three">
-          <div class="card"><div class="icon">☰</div><h3>Any M3U playlist</h3><p>M3U and M3U8 links, sorted into the playlist's own groups with channel logos. Big playlists with tens of thousands of entries stay fast.</p></div>
-          <div class="card"><div class="icon">⇄</div><h3>Xtream and Jellyfin</h3><p>Sign in to your Xtream Codes provider or your own Jellyfin or Emby server and browse live TV, movies, seasons and episodes.</p></div>
-          <div class="card"><div class="icon">▶</div><h3>Car mode</h3><p>A landscape layout with oversized buttons, 30-second skips and a channel strip, so switching takes one tap.</p></div>
-          <div class="card"><div class="icon">⧉</div><h3>AirPlay and Picture in Picture</h3><p>Send video to a car display, wireless adapter or TV, or keep watching in a small window while you use other apps.</p></div>
-          <div class="card"><div class="icon">★</div><h3>Favourites and resume</h3><p>Pin channels and reorder them, pick up movies where you left off, and jump back to anything you played recently.</p></div>
-          <div class="card"><div class="icon">⌁</div><h3>QR codes and voice search</h3><p>Scan a playlist QR code to add it in a second, and find a channel by saying its name.</p></div>
-        </div>
+      <div class="car-controls">
+        <button class="round" data-action="back30" aria-label="Back 30 seconds">−30</button>
+        <button class="round lg" data-action="prev" aria-label="Previous channel">⏮</button>
+        <button class="round xl accent" data-action="toggle" id="car-toggle" aria-label="Play or pause">⏸</button>
+        <button class="round lg" data-action="next" aria-label="Next channel">⏭</button>
+        <button class="round" data-action="fwd30" aria-label="Forward 30 seconds">+30</button>
       </div>
-    </section>
-
-    <section class="alt" id="casting">
-      <div class="wrap grid two">
-        <div class="landscape"><img src="/assets/shots/carmode.jpg" alt="Backseat car mode playing a video with large controls"></div>
-        <div>
-          <h2>From phone to car screen in three taps</h2>
-          <div class="steps">
-            <div class="step"><div><strong>Connect your iPhone</strong><p>Join the car's display, an AirPlay wireless adapter, or the same Wi-Fi as your TV.</p></div></div>
-            <div class="step"><div><strong>Tap the AirPlay button</strong><p>It's in the player and on the Cast to Car tab. Pick the screen you want.</p></div></div>
-            <div class="step"><div><strong>Play any channel</strong><p>The video moves to the big screen and your iPhone becomes the remote.</p></div></div>
-          </div>
-          <p class="notice" style="margin-top:24px">For passengers only. Never watch video or operate the app while driving.</p>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="wrap">
-        <h2>A closer look</h2>
-        <p class="section-lead">Dark, simple and readable at arm's length.</p>
-        <div class="shots">
-          <figure><div class="phone"><img loading="lazy" src="/assets/shots/home.jpg" alt="Home screen with continue watching and a mini player"></div><figcaption>Continue watching and mini player</figcaption></figure>
-          <figure><div class="phone"><img loading="lazy" src="/assets/shots/channels.jpg" alt="Channel list with group filters"></div><figcaption>Channels sorted by group</figcaption></figure>
-          <figure><div class="phone"><img loading="lazy" src="/assets/shots/visualizer.jpg" alt="Audio visualizer for a radio stream"></div><figcaption>Visualizer for radio streams</figcaption></figure>
-          <figure><div class="phone"><img loading="lazy" src="/assets/shots/cast.jpg" alt="Cast to Car screen with AirPlay button and steps"></div><figcaption>Cast to Car</figcaption></figure>
-          <figure><div class="phone"><img loading="lazy" src="/assets/shots/paywall.jpg" alt="Backseat Pro plans"></div><figcaption>Backseat Pro</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-    <section class="alt" id="privacy-first">
-      <div class="wrap grid two">
-        <div>
-          <h2>Private by design</h2>
-          <ul class="checks">
-            <li><strong>No account.</strong> Open the app and start watching.</li>
-            <li><strong>Stays on your iPhone.</strong> Playlists, favourites and progress are stored on the device.</li>
-            <li><strong>Passwords in the Keychain.</strong> Server logins are kept in iOS secure storage and sent only to your own server.</li>
-            <li><strong>No ads, no tracking.</strong> Backseat has no servers of its own.</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3 style="margin-top:0">Try it before the app is out</h3>
-          <p>The web player runs in your browser: add an M3U link or file, browse channels and play HLS streams. Some playlists only work in the iPhone app, because many IPTV servers block browsers.</p>
-          <p style="margin-top:16px"><a class="btn btn-primary btn-sm" href="/app/">Open the web player</a></p>
-        </div>
-      </div>
-    </section>
-
-    <section id="pricing">
-      <div class="wrap">
-        <h2>Free to start. Pro when you're ready.</h2>
-        <p class="section-lead">Everything you need to watch is free. Pro adds car mode, unlimited playlists and extra visualizer styles.</p>
-        <div class="grid three">
-          <div class="card price">
-            <h3 style="margin:0">Free</h3>
-            <div class="amount">$0</div>
-            <ul class="checks"><li>Up to 2 playlists or servers</li><li>AirPlay and Picture in Picture</li><li>Favourites, resume, search</li></ul>
-          </div>
-          <div class="card price featured">
-            <span class="badge">Best value</span>
-            <h3 style="margin:0">Pro yearly</h3>
-            <div class="amount">$11.99 <small>/ year</small></div>
-            <ul class="checks"><li>3-day free trial</li><li>Car mode</li><li>Unlimited playlists and servers</li><li>Every visualizer style</li></ul>
-          </div>
-          <div class="card price">
-            <h3 style="margin:0">Pro lifetime</h3>
-            <div class="amount">$24.99 <small>once</small></div>
-            <ul class="checks"><li>Everything in Pro, forever</li><li>Or Pro weekly at $1.99</li></ul>
-          </div>
-        </div>
-        <p class="fine">Prices in US dollars. Final local prices are shown in the App Store.</p>
-      </div>
-    </section>
-
-    <section class="alt" id="faq">
-      <div class="wrap" style="max-width:820px">
-        <h2>Questions</h2>
-        <details><summary>Does Backseat include any channels?</summary><p>No. Backseat is a player. You add your own playlists and servers, and you're responsible for having the right to watch them.</p></details>
-        <details><summary>Does it work with CarPlay?</summary><p>Apple doesn't allow video apps on CarPlay. Backseat sends video to car displays and adapters that support AirPlay, and Screen Mirroring in Control Center works with any app.</p></details>
-        <details><summary>Why won't a channel play?</summary><p>The stream may be offline or geo-blocked, or it may use a format iPhone can't decode. Try refreshing the playlist, or ask your provider for an HLS (.m3u8) link.</p></details>
-        <details><summary>Why do some playlists fail in the web player?</summary><p>Browsers only load playlists from servers that allow it (CORS), and secure sites can't play http:// streams. The iPhone app has neither limit. In the web player you can also upload the .m3u file instead of pasting its link.</p></details>
-        <details><summary>Can I cancel Pro?</summary><p>Yes. Manage or cancel it at any time in Settings › Apple Account › Subscriptions on your iPhone.</p></details>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="wrap">
-      <span>© <span id="y"></span> Backseat. Not affiliated with Apple or any TV provider.</span>
-      <nav aria-label="Footer"><a href="/app/">Web player</a><a href="/privacy/">Privacy</a><a href="/support/">Support</a></nav>
+      <div class="car-time" id="car-time"></div>
+      <div class="car-strip" id="car-strip"></div>
     </div>
-  </footer>
-  <script>document.getElementById('y').textContent = new Date().getFullYear()</script>
+  </div>
+
+  <dialog id="add" aria-labelledby="add-title">
+    <form method="dialog" id="add-form">
+      <h2 id="add-title">Add a playlist</h2>
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab active" data-tab="url" role="tab">Link</button>
+        <button type="button" class="tab" data-tab="file" role="tab">Upload file</button>
+        <button type="button" class="tab" data-tab="sample" role="tab">Sample</button>
+      </div>
+      <div class="pane" data-pane="url">
+        <label>Name (optional)<input name="name" autocomplete="off"></label>
+        <label>Playlist or stream link<input name="url" type="url" placeholder="https://example.com/playlist.m3u" autocomplete="off"></label>
+        <p class="hint">M3U and M3U8 playlists, or a single HLS stream. The server must allow browsers to read it; if it doesn't, upload the file instead.</p>
+      </div>
+      <div class="pane" data-pane="file" hidden>
+        <label>Name (optional)<input name="fname" autocomplete="off"></label>
+        <label>.m3u or .m3u8 file<input name="file" type="file" accept=".m3u,.m3u8,audio/x-mpegurl,application/x-mpegurl,application/vnd.apple.mpegurl,text/plain"></label>
+        <p class="hint">The file is read in your browser and never uploaded anywhere.</p>
+      </div>
+      <div class="pane" data-pane="sample" hidden>
+        <p class="hint">Nine public test streams (HLS video, MP4 movies and an audio-only stream) so you can try the player.</p>
+      </div>
+      <p class="error" id="add-error" hidden></p>
+      <div class="actions">
+        <button type="button" class="btn" data-action="close-add">Cancel</button>
+        <button type="submit" class="btn primary" id="add-submit">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" hidden role="status"></div>
 </body>
 </html>

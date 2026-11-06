@@ -6,8 +6,8 @@ A clean-room rebuild of the core features of an M3U/IPTV player with car casting
 
 `web/` is a static site with no build step. Netlify publishes it using `netlify.toml`:
 
-- `/` is the landing page, with `/privacy/` and `/support/` (App Store Connect needs both URLs).
-- `/app/` is the web player. Add an M3U link or file, browse channels, play HLS with hls.js, favourites, resume, and car mode. Many IPTV servers block browsers (CORS), and https pages can't play `http://` streams, so some playlists only work in the iPhone app.
+- `/` is the web player, laid out like the iPhone app: Home, Playlists, Cast to Car and Settings tabs, a bottom tab bar on phones, and installable to the home screen. Add an M3U link or file, browse channels, play HLS (hls.js, falling back to the browser's own HLS), favourites, resume, car mode and the audio visualizer. Many IPTV servers block browsers (CORS), and https pages can't play `http://` streams, so some playlists only work in the iPhone app.
+- `/about/` is the landing page, with `/privacy/` and `/support/` (App Store Connect needs both URLs). The old `/app/` address redirects to `/`.
 
 To preview locally:
 

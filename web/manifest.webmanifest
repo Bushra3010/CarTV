@@ -1,0 +1,16 @@
+{
+  "name": "Backseat — IPTV player",
+  "short_name": "Backseat",
+  "description": "Play your own M3U playlists, cast to a TV, and switch channels with big car-mode controls.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#07080f",
+  "theme_color": "#07080f",
+  "icons": [
+    { "src": "/assets/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
